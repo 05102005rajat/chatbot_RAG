@@ -42,6 +42,6 @@ def generate_rag_answer(question, index, questions, answers, top_k=3, confidence
     similarities, relevant_idxs = search_index(index, query_emb, top_k)
 
     context = "\n\n".join([f"Q: {questions[i]}\nA: {answers[i]}" for i in relevant_idxs])
-    prompt = f"Context:\n{context}\n\nBased on the above, answer this question:\n{question}, if the question is out of context, respond with 'I don't know'."
+    prompt = f"Context:\n{context}\n\nBased on the above, answer this question:\n{question},"
     response = ollama.chat(model=RAG_MODEL, messages=[{"role": "user", "content": prompt}])
     return response['message']['content']
