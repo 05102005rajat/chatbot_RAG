@@ -7,6 +7,16 @@ from rag_engine import (
 )
 from data_loading import load_faq_data
 from config import PREDEFINED_RESPONSES
+from config import (
+    FAQ_FOLDER,
+    INDEX_FOLDER,
+    CHAT_LOG_FOLDER,
+    EMBEDDING_MODEL,
+    RAG_MODEL,
+    DEPARTMENT_FILES,
+    PREDEFINED_RESPONSES
+)
+
 
 # --- Init session state ---
 if "history" not in st.session_state:
@@ -19,25 +29,10 @@ if "current_index" not in st.session_state:
     st.session_state.current_index = None
 
 # --- Folder setup ---
-FAQ_FOLDER = "faqs"
-INDEX_FOLDER = "vector_stores"
-CHAT_LOG_FOLDER = "chat_log"
+
 os.makedirs(CHAT_LOG_FOLDER, exist_ok=True)
 os.makedirs(INDEX_FOLDER, exist_ok=True)
 
-# --- Department setup ---
-DEPARTMENT_FILES = {
-    "IT": "IT_FAQs.xlsx",
-    "HR": "HR_FAQs.xlsx",
-    "Admin": "Admin_FAQs.xlsx",
-    "Finance": "Finance_FAQs.xlsx",
-    "Security": "Security_FAQs.xlsx",
-    "L&D": "L&D_FAQs.xlsx",
-    "CSR": "CSR_FAQs.xlsx",
-    "Travel": "Travel_FAQs.xlsx",
-    "Cafeteria": "Cafeteria_FAQs.xlsx",
-    "IT Assets": "IT_Assets_FAQs.xlsx"
-}
 
 # --- Chat log handling ---
 def list_chat_files():
