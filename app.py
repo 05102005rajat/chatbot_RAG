@@ -1,5 +1,6 @@
 import os
 import json
+import re
 from datetime import datetime
 
 import streamlit as st
@@ -81,10 +82,18 @@ def load_chat_file(filename):
     return chat
 
 
+def _slug(name: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")
+
+
+def index_path_for(department: str) -> str:
+    return os.path.join(INDEX_FOLDER, f"{_slug(department)}_faq.index")
+
+
 def load_department_data(department):
     faq_file = DEPARTMENT_FILES[department]
     faq_path = os.path.join(FAQ_FOLDER, faq_file)
-    index_path = os.path.join(INDEX_FOLDER, f"{department.lower()}_faq.index")
+    index_path = index_path_for(department)
 
     questions, answers = load_faq_data(faq_path)
 
@@ -172,9 +181,7 @@ if st.sidebar.button("Start New Chat"):
     st.rerun()
 
 if clear_cache:
-    index_path = os.path.join(
-        INDEX_FOLDER, f"{st.session_state.selected_department.lower()}_faq.index"
-    )
+    index_path = index_path_for(st.session_state.selected_department)
     if os.path.exists(index_path):
         os.remove(index_path)
     (
