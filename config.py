@@ -1,18 +1,19 @@
-FAQ_DATA_PATH = "faqs/IT_FAQs.xlsx"  # Default path, not used for multi-department
-INDEX_PATH = "vector_stores/it_faq.index"  # Default path, not used for multi-department
-EMBEDDING_MODEL = "embeddinggemma:latest"
-RAG_MODEL = "gemma3:1b"
-
-# config.py
-
 # === Folder Paths ===
 FAQ_FOLDER = "faqs"
 INDEX_FOLDER = "vector_stores"
+EMBEDDING_CACHE_FOLDER = "vector_stores/_embeddings"
 CHAT_LOG_FOLDER = "chat_log"
 
 # === Model Configuration ===
 EMBEDDING_MODEL = "embeddinggemma:latest"
 RAG_MODEL = "gemma3:1b"
+
+# === Retrieval Configuration ===
+# Minimum cosine similarity for the top match before we trust the context
+# enough to ask the LLM to answer. Below this, we return a polite fallback
+# instead of risking a hallucination.
+CONFIDENCE_THRESHOLD = 0.6
+DEFAULT_TOP_K = 3
 
 # === Department Mapping ===
 DEPARTMENT_FILES = {
@@ -25,16 +26,19 @@ DEPARTMENT_FILES = {
     "CSR": "CSR_FAQs.xlsx",
     "Travel": "Travel_FAQs.xlsx",
     "Cafeteria": "Cafeteria_FAQs.xlsx",
-    "IT Assets": "IT_Assets_FAQs.xlsx"
+    "IT Assets": "IT_Assets_FAQs.xlsx",
 }
 
-# === Predefined Responses ===
-PREDEFINED_RESPONSES = {
-    "hi": "Hello! How can I help you today?",
-    "hello": "Hi there! How’s your day going?",
-    "hey": "Hey! What can I do for you?",
-    "thank you": "You’re welcome! Always happy to help.",
-    "thanks": "No problem at all!",
-    "bye": "Goodbye! Have a great day.",
-    "goodbye": "See you later! Take care."
-}
+# === System Prompt ===
+SYSTEM_PROMPT = (
+    "You are an FAQ assistant for the {department} department. "
+    "Answer the user's question using ONLY the context below. "
+    "If the context does not contain the answer, say "
+    "\"I don't have information on that — please contact the {department} team directly.\" "
+    "Do not invent policies, names, dates, or numbers. Be concise."
+)
+
+LOW_CONFIDENCE_FALLBACK = (
+    "I don't have information on that in the {department} FAQs — "
+    "please contact the {department} team directly."
+)
