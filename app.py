@@ -13,7 +13,7 @@ from rag_engine import (
     retrieve,
     is_confident,
     stream_answer,
-    fallback_message,
+    stream_chitchat,
     OllamaUnavailable,
 )
 from data_loading import load_faq_data
@@ -227,11 +227,9 @@ if user_input:
 
         sources = list(zip(relevant_idxs, similarities))
 
-        if not is_confident(similarities, threshold):
-            answer = fallback_message(st.session_state.selected_department)
-            st.markdown(answer)
-        else:
-            try:
+        grounded = is_confident(similarities, threshold)
+        try:
+            if grounded:
                 answer = st.write_stream(
                     stream_answer(
                         user_input,
@@ -241,13 +239,24 @@ if user_input:
                         st.session_state.selected_department,
                     )
                 )
-            except OllamaUnavailable as e:
-                st.error(str(e))
-                st.stop()
+            else:
+                answer = st.write_stream(
+                    stream_chitchat(
+                        user_input, st.session_state.selected_department
+                    )
+                )
+        except OllamaUnavailable as e:
+            st.error(str(e))
+            st.stop()
 
-        render_sources(sources, questions, answers)
+        if grounded:
+            render_sources(sources, questions, answers)
 
     st.session_state.history.append(
-        {"role": "assistant", "content": answer, "sources": sources}
+        {
+            "role": "assistant",
+            "content": answer,
+            "sources": sources if grounded else None,
+        }
     )
     st.rerun()

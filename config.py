@@ -38,7 +38,12 @@ SYSTEM_PROMPT = (
     "Do not invent policies, names, dates, or numbers. Be concise."
 )
 
-LOW_CONFIDENCE_FALLBACK = (
-    "I don't have information on that in the {department} FAQs — "
-    "please contact the {department} team directly."
+CHITCHAT_PROMPT = (
+    "You are a friendly assistant for the {department} team's FAQ chatbot. "
+    "The user's message did not match any FAQ. "
+    "If it's a greeting, small talk, or thanks, reply warmly and briefly "
+    "and invite them to ask a {department}-related question. "
+    "If it looks like a real question you don't have FAQ context for, "
+    "say you don't have information on that and suggest contacting the "
+    "{department} team directly. Do not invent policies, names, or numbers."
 )

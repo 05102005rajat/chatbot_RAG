@@ -12,7 +12,7 @@ from config import (
     EMBEDDING_CACHE_FOLDER,
     CONFIDENCE_THRESHOLD,
     SYSTEM_PROMPT,
-    LOW_CONFIDENCE_FALLBACK,
+    CHITCHAT_PROMPT,
 )
 
 
@@ -124,15 +124,7 @@ def is_confident(similarities: list[float], threshold: float = CONFIDENCE_THRESH
     return bool(similarities) and similarities[0] >= threshold
 
 
-def stream_answer(
-    question: str,
-    questions: list[str],
-    answers: list[str],
-    relevant_idxs: list[int],
-    department: str,
-):
-    """Yield response chunks (strings) from the LLM."""
-    messages = _build_prompt(question, questions, answers, relevant_idxs, department)
+def _stream_messages(messages: list[dict]):
     try:
         for chunk in ollama.chat(model=RAG_MODEL, messages=messages, stream=True):
             piece = chunk.get("message", {}).get("content", "")
@@ -145,5 +137,22 @@ def stream_answer(
         ) from e
 
 
-def fallback_message(department: str) -> str:
-    return LOW_CONFIDENCE_FALLBACK.format(department=department)
+def stream_answer(
+    question: str,
+    questions: list[str],
+    answers: list[str],
+    relevant_idxs: list[int],
+    department: str,
+):
+    """Stream a grounded answer using the retrieved FAQ context."""
+    messages = _build_prompt(question, questions, answers, relevant_idxs, department)
+    yield from _stream_messages(messages)
+
+
+def stream_chitchat(question: str, department: str):
+    """Stream a conversational reply for low-confidence (off-topic / greeting) queries."""
+    messages = [
+        {"role": "system", "content": CHITCHAT_PROMPT.format(department=department)},
+        {"role": "user", "content": question},
+    ]
+    yield from _stream_messages(messages)
